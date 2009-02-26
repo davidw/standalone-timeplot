@@ -130,11 +130,11 @@ end
 task :install => [COMPRESSED_OUTPUT_FILE, OUTPUT_FILE, CSS_FILE] do
   target = ENV['TARGET']
   raise "Need a TARGET directory" if target.nil?
+  mkdir_p target + "/styles"
+  mkdir_p target + "/images"
   cp COMPRESSED_OUTPUT_FILE, target
   cp OUTPUT_FILE, target
-  mkdir_p target + "/styles"
   cp CSS_FILE, target + "/styles"
-  mkdir_p target + "/images"
   Imagefiles.each do |imf|
     cp imf, target + "/images"
   end
