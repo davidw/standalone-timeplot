@@ -21,4 +21,8 @@ And then like this, in my HTML files:
 
     <script src="/timeplot/timeplot-complete.js" type="text/javascript"></script>
 
-David N. Welton <davidw@dedasys.com>
+Or, for the compressed version:
+
+    <script src="/timeplot/timeplot-complete-min.js" type="text/javascript"></script>
+
+David N. Welton - http://www.dedasys.com
