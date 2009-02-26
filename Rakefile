@@ -1,7 +1,5 @@
 # Rakefile - create a big, fat, copy of the timeline widget.
 
-PREFIX=ENV['PREFIX']
-
 COMPRESS="java -jar yuicompressor-2.4.2.jar"
 COMPRESSED_OUTPUT_FILE='timeplot-complete-min.js'
 OUTPUT_FILE='timeplot-complete.js'
