@@ -1,0 +1,24 @@
+= Simile Timeplot - Standalone version
+
+The Simile project has done some very nice work in creating a timeline
+widget for Javascript, hosted here:
+
+http://code.google.com/p/simile-widgets/
+
+However, it suffers from a small problem: it's a pain in the neck to
+install locally and/or hack on.  It also loads up a number of files.
+
+This project is an effort to track their work as closely as possible,
+and at the same time provide an easy-to-install version.
+
+== Usage
+
+I use it like so:
+
+    rake install TARGET=/home/davidw/workshop/langpop/public/timeplot
+
+And then like this, in my HTML files:
+
+    <script src="/timeplot/timeplot-complete.js" type="text/javascript"></script>
+
+David N. Welton <davidw@dedasys.com>
