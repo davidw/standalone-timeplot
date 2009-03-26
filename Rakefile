@@ -14,7 +14,7 @@ task :all => [COMPRESSED_OUTPUT_FILE, OUTPUT_FILE, CSS_FILE]
 
 # The animal bits that go in to make the sausage:
 Files = %w(simile-ajax/src/webapp/api/simile-ajax-api.js
-simile-ajax/src/webapp/api/scripts/jquery-1.2.6.js
+simile-ajax/src/webapp/api/scripts/jquery-1.3.2.min.js
 simile-ajax/src/webapp/api/scripts/platform.js
 simile-ajax/src/webapp/api/scripts/debug.js
 simile-ajax/src/webapp/api/scripts/xmlhttp.js
