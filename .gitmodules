@@ -1,6 +1,6 @@
 [submodule "simile-ajax"]
 	path = simile-ajax
-	url = git@github.com:davidw/simile-ajax.git
+	url = git://github.com/davidw/simile-ajax.git
 [submodule "simile-timeline"]
 	path = simile-timeline
 	url = git@github.com:davidw/simile-timeline.git
