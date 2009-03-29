@@ -3665,43 +3665,45 @@ SimileAjax.WindowManager._findDropTarget = function(elmt) {
     return elmt;
 };
 /*==================================================
- *  Timeline API
  *
- *  This file will load all the Javascript files
- *  necessary to make the standard timeline work.
- *  It also detects the default locale.
+ *              Timeline API
+ *              ------------
  *
- *  To run from the MIT copy of Timeline:
- *  Include this file in your HTML file as follows:
+ * This file will load all the Javascript files
+ * necessary to make the standard timeline work.
+ * It also detects the default locale.
  *
- *    <script src="http://static.simile.mit.edu/timeline/api-2.0/timeline-api.js" 
- *     type="text/javascript"></script>
+ * To run Timeline directly from the www.simile-widgets.org server
+ * include this fragment in your HTML file as follows:
+ *
+ *   <script src="http://api.simile-widgets.org/timeline/2.3.1/timeline-api.js" 
+ *    type="text/javascript"></script>
  *
  *
  * To host the Timeline files on your own server:
- *   1) Install the Timeline and Simile-Ajax files onto your webserver using
- *      timeline_libraries.zip or timeline_source.zip
+ *
+ * 1) Install the Timeline files onto your webserver using
+ *    the minimal distribution "timeline_<version>_minimal.(zip|tar.gz)" found at
+ *
+ *        http://code.google.com/p/simile-widgets/downloads/list
  * 
- *   2) Set global js variables used to send parameters to this script:
- *        Timeline_ajax_url -- url for simile-ajax-api.js
- *        Timeline_urlPrefix -- url for the *directory* that contains timeline-api.js
- *          Include trailing slash
- *        Timeline_parameters='bundle=true'; // you must set bundle to true if you are using
- *                                           // timeline_libraries.zip since only the
- *                                           // bundled libraries are included
+ * 2) Set the following global js variable used to send parameters to this script:
+ *     var Timeline_ajax_url  -- URL for simile-ajax-api.js
+ *     var Timeline_urlPrefix -- URL for the *directory* that contains timeline-api.js 
+ *                               on your web site (including the trailing slash!)
  *      
- * eg your html page would include
+ * eg your HTML page would include
  *
  *   <script>
- *     Timeline_ajax_url="http://YOUR_SERVER/javascripts/timeline/timeline_ajax/simile-ajax-api.js";
- *     Timeline_urlPrefix='http://YOUR_SERVER/javascripts/timeline/timeline_js/';       
- *     Timeline_parameters='bundle=true';
+ *     var Timeline_ajax_url="http://YOUR_SERVER/apis/timeline/ajax/simile-ajax-api.js";
+ *     var Timeline_urlPrefix='http://YOUR_SERVER/apis/timeline/';       
  *   </script>
- *   <script src="http://YOUR_SERVER/javascripts/timeline/timeline_js/timeline-api.js"    
+ *   <script src="http://YOUR_SERVER/javascripts/timeline/timeline-api.js"    
  *     type="text/javascript">
  *   </script>
  *
  * SCRIPT PARAMETERS
+ *
  * This script auto-magically figures out locale and has defaults for other parameters 
  * To set parameters explicity, set js global variable Timeline_parameters or include as
  * parameters on the url using GET style. Eg the two next lines pass the same parameters:
@@ -3715,10 +3717,27 @@ SimileAjax.WindowManager._findDropTarget = function(elmt) {
  *   defaultLocale --
  *   forceLocale -- force locale to be a particular value--used for debugging. Normally locale is determined
  *                  by browser's and server's locale settings.
+ * 
+ * DEBUGGING
+ *
+ * If you have a problem with Timeline, the first step is to use the unbundled Javascript files. To do so:
+ * To use the unbundled Timeline and Ajax libraries
+ * Change
+ *   <script src="http://api.simile-widgets.org/timeline/2.3.1/api/timeline-api.js?bundle=true" type="text/javascript"></script>
+ * To
+ *   <script>var Timeline_ajax_url = "http://api.simile-widgets.org/ajax/2.2.1/simile-ajax-api.js?bundle=false"</script>
+ *   <script src="http://api.simile-widgets.org/timeline/2.3.1/api/timeline-api.js?bundle=false" type="text/javascript"></script>
+ * 
+ * Note that the Ajax version is usually NOT the same as the Timeline version.
+ * See variable simile_ajax_ver below for the current version
+ *
  *================================================== 
  */
 
 (function() {
+    
+    var simile_ajax_ver = "2.2.1"; // ===========>>>  current Simile-Ajax version
+  
     var useLocalResources = false;
     if (document.location.search.length > 0) {
         var params = document.location.search.substr(1).split("&");
@@ -3920,7 +3939,7 @@ SimileAjax.WindowManager._findDropTarget = function(elmt) {
         
         var url = useLocalResources ?
             "http://127.0.0.1:9999/ajax/api/simile-ajax-api.js?bundle=false" :
-            "http://static.simile.mit.edu/ajax/api-2.0/simile-ajax-api.js";
+            "http://api.simile-widgets.org/ajax/" + simile_ajax_ver + "/simile-ajax-api.js";
         if (typeof Timeline_ajax_url == "string") {
            url = Timeline_ajax_url;
         }
@@ -3972,10 +3991,19 @@ SimileAjax.WindowManager._findDropTarget = function(elmt) {
 
 
 /*==================================================
+ *  Timeline VERSION     
+ *==================================================
+ */
+// Note: version is also stored in the build.xml file
+Timeline.version = 'pre 2.4.0';  // use format 'pre 1.2.3' for trunk versions 
+Timeline.ajax_lib_version = SimileAjax.version;
+Timeline.display_version = Timeline.version + ' (with Ajax lib ' + Timeline.ajax_lib_version + ')';
+ // cf method Timeline.writeVersion
+
+/*==================================================
  *  Timeline
  *==================================================
  */
-
 Timeline.strings = {}; // localization string tables
 Timeline.HORIZONTAL = 0;
 Timeline.VERTICAL = 1;
@@ -4172,6 +4200,12 @@ Timeline.loadJSON = function(url, f) {
 Timeline.getTimelineFromID = function(timelineID) {
     return Timeline.timelines[timelineID];
 };
+
+// Write the current Timeline version as the contents of element with id el_id
+Timeline.writeVersion = function(el_id) {
+  document.getElementById(el_id).innerHTML = this.display_version;    
+};
+
 
 
 /*==================================================
@@ -4411,12 +4445,12 @@ Timeline._Impl.prototype._initialize = function() {
     }
     
     /*
-     *  inserting copyright and link to simile
+     *  inserting copyright and link
      */
     var elmtCopyright = SimileAjax.Graphics.createTranslucentImage(Timeline.urlPrefix + (this.isHorizontal() ? "images/copyright-vertical.png" : "images/copyright.png"));
     elmtCopyright.className = "timeline-copyright";
-    elmtCopyright.title = "Timeline &copy; SIMILE - http://simile.mit.edu/timeline/";
-    SimileAjax.DOM.registerEvent(elmtCopyright, "click", function() { window.location = "http://simile.mit.edu/timeline/"; });
+    elmtCopyright.title = "SIMILE Timeline - http://www.simile-widgets.org/";
+    SimileAjax.DOM.registerEvent(elmtCopyright, "click", function() { window.location = "http://www.simile-widgets.org/"; });
     containerDiv.appendChild(elmtCopyright);
     
     /*
@@ -4633,12 +4667,17 @@ Timeline._Band = function(timeline, bandInfo, index) {
     this._changing = false;
     this._originalScrollSpeed = 5; // pixels
     this._scrollSpeed = this._originalScrollSpeed;
+    this._viewOrthogonalOffset = 0; // vertical offset if the timeline is horizontal, and vice versa
     this._onScrollListeners = [];
+    this._onOrthogonalScrollListeners = [];
     
     var b = this;
     this._syncWithBand = null;
     this._syncWithBandHandler = function(band) {
         b._onHighlightBandScroll();
+    };
+    this._syncWithBandOrthogonalScrollHandler = function(band) {
+        b._onHighlightBandOrthogonalScroll();
     };
     this._selectorListener = function(band) {
         b._onHighlightBandScroll();
@@ -4715,6 +4754,18 @@ Timeline._Band = function(timeline, bandInfo, index) {
     for (var i = 0; i < this._decorators.length; i++) {
         this._decorators[i].initialize(this, timeline);
     }
+    
+    this._supportsOrthogonalScrolling = ("supportsOrthogonalScrolling" in this._eventPainter) &&
+        this._eventPainter.supportsOrthogonalScrolling();
+        
+    if (this._supportsOrthogonalScrolling) {
+        this._scrollBar = this._timeline.getDocument().createElement("div");
+        this._scrollBar.id = "timeline-band-scrollbar-" + index;
+        this._scrollBar.className = "timeline-band-scrollbar";
+        this._timeline.addDiv(this._scrollBar);
+        
+        this._scrollBar.innerHTML = '<div class="timeline-band-scrollbar-thumb"> </div>'
+    }
 };
 
 Timeline._Band.SCROLL_MULTIPLES = 5;
@@ -4739,11 +4790,13 @@ Timeline._Band.prototype.dispose = function() {
     
     this._onScrollListeners = null;
     this._syncWithBandHandler = null;
+    this._syncWithBandOrthogonalScrollHandler = null;
     this._selectorListener = null;
     
     this._div = null;
     this._innerDiv = null;
     this._keyboardInput = null;
+    this._scrollBar = null;
 };
 
 Timeline._Band.prototype.addOnScrollListener = function(listener) {
@@ -4759,13 +4812,28 @@ Timeline._Band.prototype.removeOnScrollListener = function(listener) {
     }
 };
 
+Timeline._Band.prototype.addOnOrthogonalScrollListener = function(listener) {
+    this._onOrthogonalScrollListeners.push(listener);
+};
+
+Timeline._Band.prototype.removeOnOrthogonalScrollListener = function(listener) {
+    for (var i = 0; i < this._onOrthogonalScrollListeners.length; i++) {
+        if (this._onOrthogonalScrollListeners[i] == listener) {
+            this._onOrthogonalScrollListeners.splice(i, 1);
+            break;
+        }
+    }
+};
+
 Timeline._Band.prototype.setSyncWithBand = function(band, highlight) {
     if (this._syncWithBand) {
         this._syncWithBand.removeOnScrollListener(this._syncWithBandHandler);
+        this._syncWithBand.removeOnOrthogonalScrollListener(this._syncWithBandOrthogonalScrollHandler);
     }
     
     this._syncWithBand = band;
     this._syncWithBand.addOnScrollListener(this._syncWithBandHandler);
+    this._syncWithBand.addOnOrthogonalScrollListener(this._syncWithBandOrthogonalScrollHandler);
     this._highlight = highlight;
     this._positionHighlight();
 };
@@ -4962,6 +5030,14 @@ Timeline._Band.prototype.pixelOffsetToDate = function(pixels) {
     return this._ether.pixelOffsetToDate(pixels + this._viewOffset);
 };
 
+Timeline._Band.prototype.getViewOrthogonalOffset = function() {
+    return this._viewOrthogonalOffset;
+};
+
+Timeline._Band.prototype.setViewOrthogonalOffset = function(offset) {
+    this._viewOrthogonalOffset = Math.max(0, offset);
+};
+
 Timeline._Band.prototype.createLayerDiv = function(zIndex, className) {
     var div = this._timeline.getDocument().createElement("div");
     div.className = "timeline-band-layer" + (typeof className == "string" ? (" " + className) : "");
@@ -5039,14 +5115,20 @@ Timeline._Band.prototype._onMouseMove = function(innerFrame, evt, target) {
         this._dragX = evt.clientX;
         this._dragY = evt.clientY;
         
-        this._moveEther(this._timeline.isHorizontal() ? diffX : diffY);
+        if (this._timeline.isHorizontal()) {
+            this._moveEther(diffX, diffY);
+        } else {
+            this._moveEther(diffY, diffX);
+        }
         this._positionHighlight();
+        this._showScrollbar();
     }
 };
 
 Timeline._Band.prototype._onMouseUp = function(innerFrame, evt, target) {
     this._dragging = false;
     this._keyboardInput.focus();
+    this._bounceBack();
 };
 
 Timeline._Band.prototype._onMouseOut = function(innerFrame, evt, target) {
@@ -5055,6 +5137,7 @@ Timeline._Band.prototype._onMouseOut = function(innerFrame, evt, target) {
     if (coords.x < 0 || coords.x > innerFrame.offsetWidth ||
         coords.y < 0 || coords.y > innerFrame.offsetHeight) {
         this._dragging = false;
+        this._bounceBack();
     }
 };
 
@@ -5183,7 +5266,11 @@ Timeline._Band.prototype._autoScroll = function(distance, f) {
     a.run();
 };
 
-Timeline._Band.prototype._moveEther = function(shift) {
+Timeline._Band.prototype._moveEther = function(shift, orthogonalShift) {
+    if (orthogonalShift === undefined) {
+        orthogonalShift = 0;
+    }
+    
     this.closeBubble();
     
     // A positive shift means back in time
@@ -5198,6 +5285,10 @@ Timeline._Band.prototype._moveEther = function(shift) {
         this._div.style.left = this._viewOffset + "px";
     } else {
         this._div.style.top = this._viewOffset + "px";
+    }
+    
+    if (this._supportsOrthogonalScrolling) {
+        this._viewOrthogonalOffset = this._viewOrthogonalOffset + orthogonalShift;
     }
     
     if (this._viewOffset > -this._viewLength * 0.5 ||
@@ -5231,6 +5322,12 @@ Timeline._Band.prototype._fireOnScroll = function() {
     }
 };
 
+Timeline._Band.prototype._fireOnOrthogonalScroll = function() {
+    for (var i = 0; i < this._onOrthogonalScrollListeners.length; i++) {
+        this._onOrthogonalScrollListeners[i](this);
+    }
+};
+
 Timeline._Band.prototype._setSyncWithBandDate = function() {
     if (this._syncWithBand) {
         var centerDate = this._ether.pixelOffsetToDate(this.getViewLength() / 2);
@@ -5244,12 +5341,13 @@ Timeline._Band.prototype._onHighlightBandScroll = function() {
         var centerPixelOffset = this._ether.dateToPixelOffset(centerDate);
         
         this._moveEther(Math.round(this._viewLength / 2 - centerPixelOffset));
-        
-        if (this._highlight) {
-            this._etherPainter.setHighlight(
-                this._syncWithBand.getMinVisibleDate(), 
-                this._syncWithBand.getMaxVisibleDate());
-        }
+        this._positionHighlight();
+    }
+};
+
+Timeline._Band.prototype._onHighlightBandOrthogonalScroll = function() {
+    if (this._syncWithBand) {
+        this._positionHighlight();
     }
 };
 
@@ -5267,7 +5365,20 @@ Timeline._Band.prototype._positionHighlight = function() {
         var endDate = this._syncWithBand.getMaxVisibleDate();
         
         if (this._highlight) {
-            this._etherPainter.setHighlight(startDate, endDate);
+            var offset = 0; // percent
+            var extent = 1.0; // percent
+            var syncEventPainter = this._syncWithBand.getEventPainter();
+            if ("supportsOrthogonalScrolling" in syncEventPainter && 
+                syncEventPainter.supportsOrthogonalScrolling()) {
+
+                var orthogonalExtent = syncEventPainter.getOrthogonalExtent();
+                var visibleWidth = this._syncWithBand.getViewWidth();
+                var totalWidth = Math.max(visibleWidth, orthogonalExtent);
+                extent = visibleWidth / totalWidth;
+                offset = -this._syncWithBand.getViewOrthogonalOffset() / totalWidth;
+            }
+            
+            this._etherPainter.setHighlight(startDate, endDate, offset, extent);
         }
     }
 };
@@ -5286,6 +5397,8 @@ Timeline._Band.prototype._recenterDiv = function() {
 
 Timeline._Band.prototype._paintEvents = function() {
     this._eventPainter.paint();
+    this._showScrollbar();
+    this._fireOnOrthogonalScroll();
 };
 
 Timeline._Band.prototype._softPaintEvents = function() {
@@ -5307,6 +5420,90 @@ Timeline._Band.prototype._softPaintDecorators = function() {
 Timeline._Band.prototype.closeBubble = function() {
     SimileAjax.WindowManager.cancelPopups();
 };
+
+Timeline._Band.prototype._bounceBack = function(f) {
+    if (!this._supportsOrthogonalScrolling) {
+        return;
+    }
+    
+    var target = 0;
+    if (this._viewOrthogonalOffset < 0) {
+        var orthogonalExtent = this._eventPainter.getOrthogonalExtent();
+        if (this._viewOrthogonalOffset + orthogonalExtent >= this.getViewWidth()) {
+            target = this._viewOrthogonalOffset;
+        } else {    
+            target = Math.min(0, this.getViewWidth() - orthogonalExtent);
+        }
+    }
+    
+    if (target != this._viewOrthogonalOffset) {
+        var self = this;
+        SimileAjax.Graphics.createAnimation(
+            function(abs, diff) {
+                self._viewOrthogonalOffset = abs;
+                self._eventPainter.softPaint();
+                self._showScrollbar();
+                self._fireOnOrthogonalScroll();
+            }, 
+            this._viewOrthogonalOffset, 
+            target, 
+            300, 
+            function() {
+                self._hideScrollbar();
+            }
+        ).run();
+    } else {
+        this._hideScrollbar();
+    }
+};
+
+Timeline._Band.prototype._showScrollbar = function() {
+    if (!this._supportsOrthogonalScrolling) {
+        return;
+    }
+    
+    var orthogonalExtent = this._eventPainter.getOrthogonalExtent();
+    var visibleWidth = this.getViewWidth();
+    var totalWidth = Math.max(visibleWidth, orthogonalExtent);
+    var ratio = (visibleWidth / totalWidth);
+    var thumbWidth = Math.round(visibleWidth * ratio) + "px";
+    var thumbOffset = Math.round(-this._viewOrthogonalOffset * ratio) + "px";
+    
+    var thumb = this._scrollBar.firstChild;
+    if (this._timeline.isHorizontal()) {
+        this._scrollBar.style.top = this._div.style.top;
+        this._scrollBar.style.height = this._div.style.height;
+        
+        this._scrollBar.style.right = "0px";
+        this._scrollBar.style.width = "10px";
+        
+        thumb.style.top = thumbOffset;
+        thumb.style.height = thumbWidth;
+    } else {
+        this._scrollBar.style.left = this._div.style.left;
+        this._scrollBar.style.width = this._div.style.width;
+        
+        this._scrollBar.style.bottom = "0px";
+        this._scrollBar.style.height = "10px";
+        
+        thumb.style.left = thumbOffset;
+        thumb.style.width = thumbWidth;
+    }
+    
+    if (ratio >= 1 && this._viewOrthogonalOffset == 0) {
+        this._scrollBar.style.display = "none";
+    } else {
+        this._scrollBar.style.display = "block";
+    }
+};
+
+Timeline._Band.prototype._hideScrollbar = function() {
+    if (!this._supportsOrthogonalScrolling) {
+        return;
+    }
+    //this._scrollBar.style.display = "none";
+};
+
 /*==================================================
  *  Classic Theme
  *==================================================
@@ -5829,8 +6026,8 @@ Timeline.GregorianEtherPainter.prototype.initialize = function(band, timeline) {
         this._timeline, this._band, this._theme, this._backgroundLayer);
 }
 
-Timeline.GregorianEtherPainter.prototype.setHighlight = function(startDate, endDate) {
-    this._highlight.position(startDate, endDate);
+Timeline.GregorianEtherPainter.prototype.setHighlight = function(startDate, endDate, orthogonalOffset, orthogonalExtent) {
+    this._highlight.position(startDate, endDate, orthogonalOffset, orthogonalExtent);
 }
 
 Timeline.GregorianEtherPainter.prototype.paint = function() {
@@ -6351,20 +6548,26 @@ Timeline.EtherHighlight = function(timeline, band, theme, backgroundLayer) {
         }
     }
     
-    this.position = function(startDate, endDate) {
+    this.position = function(startDate, endDate, orthogonalOffset, orthogonalExtent) {
+        orthogonalOffset = orthogonalOffset || 0;
+        orthogonalExtent = orthogonalExtent || 1.0;
+        
         this._createHighlightDiv();
         
         var startPixel = Math.round(band.dateToPixelOffset(startDate));
         var endPixel = Math.round(band.dateToPixelOffset(endDate));
         var length = Math.max(endPixel - startPixel, 3);
+        var totalWidth = band.getViewWidth() - 4;
         if (horizontal) {
             this._highlightDiv.style.left = startPixel + "px";
-            this._highlightDiv.style.width = length + "px";           
-            this._highlightDiv.style.height = (band.getViewWidth() - 4) + "px";
+            this._highlightDiv.style.width = length + "px";
+            this._highlightDiv.style.top = Math.round(orthogonalOffset * totalWidth) + "px";
+            this._highlightDiv.style.height = Math.round(orthogonalExtent * totalWidth) + "px";
         } else {
             this._highlightDiv.style.top = startPixel + "px";
             this._highlightDiv.style.height = length + "px";
-            this._highlightDiv.style.width = (band.getViewWidth() - 4) + "px";
+            this._highlightDiv.style.left = Math.round(orthogonalOffset * totalWidth) + "px";
+            this._highlightDiv.style.width = Math.round(orthogonalExtent * totalWidth) + "px";
         }
     }
 };
@@ -6623,35 +6826,49 @@ Timeline.DefaultEventSource.prototype.loadJSON = function(data, url) {
         var parseDateTimeFunction = this._events.getUnit().getParser(dateTimeFormat);
        
         for (var i=0; i < data.events.length; i++){
-            var event = data.events[i];
+            var evnt = data.events[i];
+            
+            // New feature: attribute synonyms. The following attribute names are interchangable.
+            // The shorter names enable smaller load files.
+            //    eid -- eventID
+            //      s -- start
+            //      e -- end
+            //     ls -- latestStart
+            //     ee -- earliestEnd
+            //      d -- description
+            //     de -- durationEvent
+            //      t -- title,
+            //      c -- classname
+
             // Fixing issue 33:
             // instant event: default (for JSON only) is false. Or use values from isDuration or durationEvent
             // isDuration was negated (see issue 33, so keep that interpretation
-            var instant = event.isDuration || (event.durationEvent != null && !event.durationEvent);
-
+            var instant = evnt.isDuration ||
+                          (('durationEvent' in evnt) && !evnt.durationEvent) ||
+                          (('de' in evnt) && !evnt.de);
             var evt = new Timeline.DefaultEventSource.Event({
-                          id: ("id" in event) ? event.id : undefined,
-                       start: parseDateTimeFunction(event.start),
-                         end: parseDateTimeFunction(event.end),
-                 latestStart: parseDateTimeFunction(event.latestStart),
-                 earliestEnd: parseDateTimeFunction(event.earliestEnd),
+                          id: ("id" in evnt) ? evnt.id : undefined,
+                       start: parseDateTimeFunction(evnt.start || evnt.s),
+                         end: parseDateTimeFunction(evnt.end || evnt.e),
+                 latestStart: parseDateTimeFunction(evnt.latestStart || evnt.ls),
+                 earliestEnd: parseDateTimeFunction(evnt.earliestEnd || evnt.ee),
                      instant: instant,
-                        text: event.title,
-                 description: event.description,
-                       image: this._resolveRelativeURL(event.image, base),
-                        link: this._resolveRelativeURL(event.link , base),
-                        icon: this._resolveRelativeURL(event.icon , base),
-                       color: event.color,                                      
-                   textColor: event.textColor,
-                   hoverText: event.hoverText,
-                   classname: event.classname,
-                   tapeImage: event.tapeImage,
-                  tapeRepeat: event.tapeRepeat,
-                     caption: event.caption,
-                     eventID: event.eventID,
-                    trackNum: event.trackNum
+                        text: evnt.title || evnt.t,
+                 description: evnt.description || evnt.d,
+                       image: this._resolveRelativeURL(evnt.image, base),
+                        link: this._resolveRelativeURL(evnt.link , base),
+                        icon: this._resolveRelativeURL(evnt.icon , base),
+                       color: evnt.color,                                      
+                   textColor: evnt.textColor,
+                   hoverText: evnt.hoverText,
+                   classname: evnt.classname || evnt.c,
+                   tapeImage: evnt.tapeImage,
+                  tapeRepeat: evnt.tapeRepeat,
+                     caption: evnt.caption,
+                     eventID: evnt.eventID  || evnt.eid,
+                    trackNum: evnt.trackNum
             });
-            evt._obj = event;
+            evt._obj = evnt;
             evt.getProperty = function(name) {
                 return this._obj[name];
             };
@@ -7174,6 +7391,10 @@ Timeline.OriginalEventPainter.prototype.getType = function() {
     return 'original';
 };
 
+Timeline.OriginalEventPainter.prototype.supportsOrthogonalScrolling = function() {
+    return true;
+};
+
 Timeline.OriginalEventPainter.prototype.addOnSelectListener = function(listener) {
     this._onSelectListeners.push(listener);
 };
@@ -7228,22 +7449,7 @@ Timeline.OriginalEventPainter.prototype.paint = function() {
     this._fireEventPaintListeners('paintStarting', null, null);
     this._prepareForPainting();
     
-    var eventTheme = this._params.theme.event;
-    var trackHeight = Math.max(eventTheme.track.height, eventTheme.tape.height + 
-                        this._frc.getLineHeight());
-    var metrics = {
-           trackOffset: eventTheme.track.offset,
-           trackHeight: trackHeight,
-              trackGap: eventTheme.track.gap,
-        trackIncrement: trackHeight + eventTheme.track.gap,
-                  icon: eventTheme.instant.icon,
-             iconWidth: eventTheme.instant.iconWidth,
-            iconHeight: eventTheme.instant.iconHeight,
-            labelWidth: eventTheme.label.width,
-          maxLabelChar: eventTheme.label.maxLabelChar,
-   impreciseIconMargin: eventTheme.instant.impreciseIconMargin
-    }
-    
+    var metrics = this._computeMetrics();
     var minDate = this._band.getMinDate();
     var maxDate = this._band.getMaxDate();
     
@@ -7268,9 +7474,46 @@ Timeline.OriginalEventPainter.prototype.paint = function() {
     // update the band object for max number of tracks in this section of the ether
     this._band.updateEventTrackInfo(this._tracks.length, metrics.trackIncrement); 
     this._fireEventPaintListeners('paintEnded', null, null);
+    
+    this._setOrthogonalOffset(metrics);
 };
 
 Timeline.OriginalEventPainter.prototype.softPaint = function() {
+    this._setOrthogonalOffset(this._computeMetrics());
+};
+
+Timeline.OriginalEventPainter.prototype.getOrthogonalExtent = function() {
+    var metrics = this._computeMetrics();
+    return 2 * metrics.trackOffset + this._tracks.length * metrics.trackIncrement;
+};
+
+Timeline.OriginalEventPainter.prototype._setOrthogonalOffset = function(metrics) {
+    var orthogonalOffset = this._band.getViewOrthogonalOffset();
+    
+    this._highlightLayer.style.top = 
+        this._lineLayer.style.top = 
+            this._eventLayer.style.top = 
+                orthogonalOffset + "px";
+};
+
+Timeline.OriginalEventPainter.prototype._computeMetrics = function() {
+     var eventTheme = this._params.theme.event;
+     var trackHeight = Math.max(eventTheme.track.height, eventTheme.tape.height + 
+                         this._frc.getLineHeight());
+     var metrics = {
+            trackOffset: eventTheme.track.offset,
+            trackHeight: trackHeight,
+               trackGap: eventTheme.track.gap,
+         trackIncrement: trackHeight + eventTheme.track.gap,
+                   icon: eventTheme.instant.icon,
+              iconWidth: eventTheme.instant.iconWidth,
+             iconHeight: eventTheme.instant.iconHeight,
+             labelWidth: eventTheme.label.width,
+           maxLabelChar: eventTheme.label.maxLabelChar,
+    impreciseIconMargin: eventTheme.instant.impreciseIconMargin
+     };
+     
+     return metrics;
 };
 
 Timeline.OriginalEventPainter.prototype._prepareForPainting = function() {
@@ -7559,7 +7802,7 @@ Timeline.OriginalEventPainter.prototype._paintEventIcon = function(evt, iconTrac
     }
     var img = SimileAjax.Graphics.createTranslucentImage(icon);
     var iconDiv = this._timeline.getDocument().createElement("div");
-    iconDiv.className = this._getElClassName('timeline-event-icon', evt);
+    iconDiv.className = this._getElClassName('timeline-event-icon', evt, 'icon');
     iconDiv.id = this._encodeEventElID('icon', evt);
     iconDiv.style.left = left + "px";
     iconDiv.style.top = top + "px";
@@ -7624,7 +7867,7 @@ Timeline.OriginalEventPainter.prototype._paintEventTape = function(
     var top = metrics.trackOffset + iconTrack * metrics.trackIncrement;
     
     var tapeDiv = this._timeline.getDocument().createElement("div");
-    tapeDiv.className = this._getElClassName('timeline-event-tape', evt);
+    tapeDiv.className = this._getElClassName('timeline-event-tape', evt, 'tape');
     tapeDiv.id = this._encodeEventElID('tape' + tape_index, evt);
     tapeDiv.style.left = startPixel + "px";
     tapeDiv.style.width = tapeWidth + "px";
@@ -7660,12 +7903,20 @@ Timeline.OriginalEventPainter.prototype._paintEventTape = function(
 }
 
 Timeline.OriginalEventPainter.prototype._getLabelDivClassName = function(evt) {
-    return this._getElClassName('timeline-event-label', evt);
+    return this._getElClassName('timeline-event-label', evt, 'label');
 };
 
-Timeline.OriginalEventPainter.prototype._getElClassName = function(elClassName, evt) {
-    var evt_classname = evt.getClassName();
-    return elClassName + (evt_classname != null ? (' ' + evt_classname) : '');
+Timeline.OriginalEventPainter.prototype._getElClassName = function(elClassName, evt, prefix) {
+    // Prefix and '_' is added to the event's classname. Set to null for no prefix
+    var evt_classname = evt.getClassName(),
+        pieces = [];
+
+    if (evt_classname) {
+      if (prefix) {pieces.push(prefix + '-' + evt_classname + ' ');}
+      pieces.push(evt_classname + ' ');
+    }
+    pieces.push(elClassName);
+    return(pieces.join(''));
 };
 
 Timeline.OriginalEventPainter.prototype._getHighlightColor = function(highlightIndex, theme) {
@@ -7680,7 +7931,7 @@ Timeline.OriginalEventPainter.prototype._createHighlightDiv = function(highlight
         var color = this._getHighlightColor(highlightIndex, theme);
         
         div = doc.createElement("div");
-        div.className = this._getElClassName('timeline-event-highlight', evt);
+        div.className = this._getElClassName('timeline-event-highlight', evt, 'highlight');
         div.id = this._encodeEventElID('highlight0', evt); // in future will have other
                                                            // highlight divs for tapes + icons
         div.style.position = "absolute";
@@ -8574,8 +8825,13 @@ Timeline.OverviewEventPainter.prototype.paintInstantEvent = function(evt, metric
     var startDate = evt.getStart();
     var startPixel = Math.round(this._band.dateToPixelOffset(startDate));
     
-    var color = evt.getColor();
-    color = color != null ? color : theme.event.duration.color;
+    var color = evt.getColor(),
+        klassName = evt.getClassName();
+    if (klassName) {
+      color = null;
+    } else {
+      color = color != null ? color : theme.event.duration.color;
+    }
     
     var tickElmtData = this._paintEventTick(evt, startPixel, color, 100, metrics, theme);
     
@@ -8597,16 +8853,22 @@ Timeline.OverviewEventPainter.prototype.paintDurationEvent = function(evt, metri
     }
     this._tracks[tapeTrack] = earliestEndPixel;
     
-    var color = evt.getColor();
-    color = color != null ? color : theme.event.duration.color;
+    var color = evt.getColor(),
+        klassName = evt.getClassName();
+    if (klassName) {
+      color = null;
+    } else {
+      color = color != null ? color : theme.event.duration.color;
+    }
     
-    var tapeElmtData = this._paintEventTape(evt, tapeTrack, latestStartPixel, earliestEndPixel, color, 100, metrics, theme);
+    var tapeElmtData = this._paintEventTape(evt, tapeTrack, latestStartPixel, earliestEndPixel,
+      color, 100, metrics, theme, klassName);
     
     this._createHighlightDiv(highlightIndex, tapeElmtData, theme);
 };
 
 Timeline.OverviewEventPainter.prototype._paintEventTape = function(
-    evt, track, left, right, color, opacity, metrics, theme) {
+    evt, track, left, right, color, opacity, metrics, theme, klassName) {
     
     var top = metrics.trackOffset + track * metrics.trackIncrement;
     var width = right - left;
@@ -8614,12 +8876,13 @@ Timeline.OverviewEventPainter.prototype._paintEventTape = function(
     
     var tapeDiv = this._timeline.getDocument().createElement("div");
     tapeDiv.className = 'timeline-small-event-tape'
+    if (klassName) {tapeDiv.className += ' small-' + klassName;}
     tapeDiv.style.left = left + "px";
     tapeDiv.style.width = width + "px";
     tapeDiv.style.top = top + "px";
     tapeDiv.style.height = height + "px";
     
-    if (color != null) {
+    if (color) {
       tapeDiv.style.backgroundColor = color; // set color here if defined by event. Else use css
     }
  //   tapeDiv.style.overflow = "hidden";   // now set in css
@@ -8645,7 +8908,7 @@ Timeline.OverviewEventPainter.prototype._paintEventTick = function(
     var width = 1;
     
     var tickDiv = this._timeline.getDocument().createElement("div");
-	tickDiv.className = 'timeline-small-event-icon'
+	  tickDiv.className = 'timeline-small-event-icon'
     tickDiv.style.left = left + "px";
     tickDiv.style.top = top + "px";
   //  tickDiv.style.width = width + "px";
@@ -8654,10 +8917,10 @@ Timeline.OverviewEventPainter.prototype._paintEventTick = function(
   //  tickDiv.style.backgroundColor = color;
   //  tickDiv.style.overflow = "hidden";
 
-    var classname = evt.getClassName()
-    if(classname) tickDiv.className +=' small-' + classname;
+    var klassName = evt.getClassName()
+    if (klassName) {tickDiv.className +=' small-' + klassName};
 	
-    if(opacity<100) SimileAjax.Graphics.setOpacity(tickDiv, opacity);
+    if(opacity<100) {SimileAjax.Graphics.setOpacity(tickDiv, opacity)};
     
     this._eventLayer.appendChild(tickDiv);
     
@@ -8694,7 +8957,7 @@ Timeline.OverviewEventPainter.prototype.showBubble = function(evt) {
     // not implemented
 };
 /*==================================================
- *  Original Event Painter
+ *  Compact Event Painter
  *==================================================
  */
 
@@ -8709,6 +8972,10 @@ Timeline.CompactEventPainter = function(params) {
     this._eventIdToElmt = {};
 };
 
+Timeline.CompactEventPainter.prototype.getType = function() {
+    return 'compact';
+};
+
 Timeline.CompactEventPainter.prototype.initialize = function(band, timeline) {
     this._band = band;
     this._timeline = timeline;
@@ -8719,6 +8986,10 @@ Timeline.CompactEventPainter.prototype.initialize = function(band, timeline) {
     this._highlightLayer = null;
     
     this._eventIdToElmt = null;
+};
+
+Timeline.CompactEventPainter.prototype.supportsOrthogonalScrolling = function() {
+    return true;
 };
 
 Timeline.CompactEventPainter.prototype.addOnSelectListener = function(listener) {
@@ -8759,45 +9030,7 @@ Timeline.CompactEventPainter.prototype.paint = function() {
     this._eventIdToElmt = {};
     this._prepareForPainting();
     
-    var theme = this._params.theme;
-    var eventTheme = theme.event;
-    
-    var metrics = {
-        trackOffset:            "trackOffset" in this._params ? this._params.trackOffset : 10,
-        trackHeight:            "trackHeight" in this._params ? this._params.trackHeight : 10,
-        
-        tapeHeight:             theme.event.tape.height,
-        tapeBottomMargin:       "tapeBottomMargin" in this._params ? this._params.tapeBottomMargin : 2,
-        
-        labelBottomMargin:      "labelBottomMargin" in this._params ? this._params.labelBottomMargin : 5,
-        labelRightMargin:       "labelRightMargin" in this._params ? this._params.labelRightMargin : 5,
-        
-        defaultIcon:            eventTheme.instant.icon,
-        defaultIconWidth:       eventTheme.instant.iconWidth,
-        defaultIconHeight:      eventTheme.instant.iconHeight,
-        
-        customIconWidth:        "iconWidth" in this._params ? this._params.iconWidth : eventTheme.instant.iconWidth,
-        customIconHeight:       "iconHeight" in this._params ? this._params.iconHeight : eventTheme.instant.iconHeight,
-        
-        iconLabelGap:           "iconLabelGap" in this._params ? this._params.iconLabelGap : 2,
-        iconBottomMargin:       "iconBottomMargin" in this._params ? this._params.iconBottomMargin : 2
-    };
-    if ("compositeIcon" in this._params) {
-        metrics.compositeIcon = this._params.compositeIcon;
-        metrics.compositeIconWidth = this._params.compositeIconWidth || metrics.customIconWidth;
-        metrics.compositeIconHeight = this._params.compositeIconHeight || metrics.customIconHeight;
-    } else {
-        metrics.compositeIcon = metrics.defaultIcon;
-        metrics.compositeIconWidth = metrics.defaultIconWidth;
-        metrics.compositeIconHeight = metrics.defaultIconHeight;
-    }
-    metrics.defaultStackIcon = "icon" in this._params.stackConcurrentPreciseInstantEvents ?
-        this._params.stackConcurrentPreciseInstantEvents.icon : metrics.defaultIcon;
-    metrics.defaultStackIconWidth = "iconWidth" in this._params.stackConcurrentPreciseInstantEvents ?
-        this._params.stackConcurrentPreciseInstantEvents.iconWidth : metrics.defaultIconWidth;
-    metrics.defaultStackIconHeight = "iconHeight" in this._params.stackConcurrentPreciseInstantEvents ?
-        this._params.stackConcurrentPreciseInstantEvents.iconHeight : metrics.defaultIconHeight;
-    
+    var metrics = this._computeMetrics();
     var minDate = this._band.getMinDate();
     var maxDate = this._band.getMaxDate();
     
@@ -8861,9 +9094,69 @@ Timeline.CompactEventPainter.prototype.paint = function() {
     this._highlightLayer.style.display = "block";
     this._lineLayer.style.display = "block";
     this._eventLayer.style.display = "block";
+    
+    this._setOrthogonalOffset(metrics);
 };
 
 Timeline.CompactEventPainter.prototype.softPaint = function() {
+    this._setOrthogonalOffset(this._computeMetrics());
+};
+
+Timeline.CompactEventPainter.prototype.getOrthogonalExtent = function() {
+    var metrics = this._computeMetrics();
+    return 2 * metrics.trackOffset + this._tracks.length * metrics.trackHeight;
+};
+
+Timeline.CompactEventPainter.prototype._setOrthogonalOffset = function(metrics) {
+    var orthogonalOffset = this._band.getViewOrthogonalOffset();
+    
+    this._highlightLayer.style.top = 
+        this._lineLayer.style.top = 
+            this._eventLayer.style.top = 
+                orthogonalOffset + "px";
+};
+
+Timeline.CompactEventPainter.prototype._computeMetrics = function() {
+    var theme = this._params.theme;
+    var eventTheme = theme.event;
+    
+    var metrics = {
+        trackOffset:            "trackOffset" in this._params ? this._params.trackOffset : 10,
+        trackHeight:            "trackHeight" in this._params ? this._params.trackHeight : 10,
+        
+        tapeHeight:             theme.event.tape.height,
+        tapeBottomMargin:       "tapeBottomMargin" in this._params ? this._params.tapeBottomMargin : 2,
+        
+        labelBottomMargin:      "labelBottomMargin" in this._params ? this._params.labelBottomMargin : 5,
+        labelRightMargin:       "labelRightMargin" in this._params ? this._params.labelRightMargin : 5,
+        
+        defaultIcon:            eventTheme.instant.icon,
+        defaultIconWidth:       eventTheme.instant.iconWidth,
+        defaultIconHeight:      eventTheme.instant.iconHeight,
+        
+        customIconWidth:        "iconWidth" in this._params ? this._params.iconWidth : eventTheme.instant.iconWidth,
+        customIconHeight:       "iconHeight" in this._params ? this._params.iconHeight : eventTheme.instant.iconHeight,
+        
+        iconLabelGap:           "iconLabelGap" in this._params ? this._params.iconLabelGap : 2,
+        iconBottomMargin:       "iconBottomMargin" in this._params ? this._params.iconBottomMargin : 2
+    };
+    if ("compositeIcon" in this._params) {
+        metrics.compositeIcon = this._params.compositeIcon;
+        metrics.compositeIconWidth = this._params.compositeIconWidth || metrics.customIconWidth;
+        metrics.compositeIconHeight = this._params.compositeIconHeight || metrics.customIconHeight;
+    } else {
+        metrics.compositeIcon = metrics.defaultIcon;
+        metrics.compositeIconWidth = metrics.defaultIconWidth;
+        metrics.compositeIconHeight = metrics.defaultIconHeight;
+    }
+    metrics.defaultStackIcon = "icon" in this._params.stackConcurrentPreciseInstantEvents ?
+        this._params.stackConcurrentPreciseInstantEvents.icon : metrics.defaultIcon;
+    metrics.defaultStackIconWidth = "iconWidth" in this._params.stackConcurrentPreciseInstantEvents ?
+        this._params.stackConcurrentPreciseInstantEvents.iconWidth : metrics.defaultIconWidth;
+    metrics.defaultStackIconHeight = "iconHeight" in this._params.stackConcurrentPreciseInstantEvents ?
+        this._params.stackConcurrentPreciseInstantEvents.iconHeight : metrics.defaultIconHeight;
+    
+    return metrics;
 };
 
 Timeline.CompactEventPainter.prototype._prepareForPainting = function() {
