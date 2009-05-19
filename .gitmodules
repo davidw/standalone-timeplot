@@ -3,7 +3,7 @@
 	url = git://github.com/davidw/simile-ajax.git
 [submodule "simile-timeline"]
 	path = simile-timeline
-	url = git@github.com:davidw/simile-timeline.git
+	url = git://github.com/davidw/simile-timeline.git
 [submodule "simile-timeplot"]
 	path = simile-timeplot
-	url = git@github.com:davidw/simile-timeplot.git
+	url = git://github.com/davidw/simile-timeplot.git
