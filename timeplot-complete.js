@@ -2051,7 +2051,6 @@ SimileAjax.DateTime.roundDownToInterval = function(date, intervalUnit, timeZone,
         date2.setUTCFullYear(Math.floor(date2.getUTCFullYear() / 1000) * 1000);
         break;
     }
-    
     date.setTime(date2.getTime() - timeShift);
 };
 
@@ -12411,7 +12410,9 @@ Timeplot.DefaultTimeGeometry.prototype = {
                 case time.DECADE:
                 case time.CENTURY:
                 case time.MILLENNIUM:
-                  var l = t.getUTCFullYear();
+		  var tmpd = new Date(t.getTime());
+                  tmpd.setDate(t.getDate() + 1);
+                  var l = tmpd.getUTCFullYear();
                   break;
             }
             if (x > 0) { 
